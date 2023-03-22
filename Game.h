@@ -11,4 +11,4 @@ void initRand();
 int sphere_Gene();
 bool is_gameover(vector<vector<int>>);
 int CheckCombine(vector<vector<int>>, int, int, int, int);
-void gameover_disp(long long);
+void gameover_disp(vector<vector<int>>, long long);

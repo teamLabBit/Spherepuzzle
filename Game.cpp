@@ -2,6 +2,7 @@
 #include "SceneMgr.h"
 #include "DxLib.h"
 #include <time.h>
+#include <Windows.h>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -13,24 +14,38 @@ static int mImageHandle2;
 static int mImageHandle3;
 static int mImageHandle4;
 static int mImageHandle5;
+static int mImageHandle6;
+
 vector<vector<int>> combine(9, vector<int>(10, 0));     //結合の状態と番号を入れておく配列
 vector<vector<int>> delete_mem(9, vector<int>(10, 0));  //消すか否かを記録する配列
-
+LPCSTR font_path = "fonts/ookamikun.ttf";
 
 void Game_Initialize() {
+    if (AddFontResourceEx(font_path, FR_PRIVATE, NULL) > 0) {
+    }
+    else {
+        MessageBox(NULL, "FONT LOAD ERROR", "", MB_OK);
+    }
 	mImageHandle1 = LoadGraph("images/game.png");
     mImageHandle2 = LoadGraph("images/sphere_blue.png");
     mImageHandle3 = LoadGraph("images/sphere_yellow.png");
     mImageHandle4 = LoadGraph("images/sphere_red.png");
     mImageHandle5 = LoadGraph("images/sphere_green.png");
+    mImageHandle6 = LoadGraph("images/Gameover.png");
 }
 
 void Game_Finalize() {
+    if (RemoveFontResourceEx(font_path, FR_PRIVATE, NULL)) {
+    }
+    else {
+        MessageBox(NULL, "remove failure", "", MB_OK);
+    }
 	DeleteGraph(mImageHandle1);
     DeleteGraph(mImageHandle2);
     DeleteGraph(mImageHandle3);
     DeleteGraph(mImageHandle4);
     DeleteGraph(mImageHandle5);
+    DeleteGraph(mImageHandle6);
 }
 
 void Game_Update() {
@@ -79,9 +94,6 @@ void Game_Update() {
                     next_sphere = sphere_Gene();
                     break;
                 }
-            }
-            if (is_gameover(puzzle)) {
-                break;
             }
         }
         if (GetAsyncKeyState(VK_ESCAPE) & 0x01) {
@@ -183,8 +195,12 @@ void Game_Update() {
         if (clock() - start < 16) {
             Sleep(16 - (clock() - start));
         }
+
+        if (is_gameover(puzzle)) {
+            break;
+        }
     }
-    gameover_disp(score);
+    gameover_disp(puzzle, score);
     while (true) {
         if (GetAsyncKeyState('R') & 0x01) {
             SceneMgr_ChangeScene(eScene_Game);
@@ -251,18 +267,21 @@ void Game_Draw(vector<vector<int>> puzzle, long long score, int sphere_pos, int 
         break;
     }
 
+    SetFontSize(22);
+    ChangeFont("おおかみくんフォント", DX_CHARSET_DEFAULT);
+
     stringstream sssec;
     sssec << setfill('0') << right << setw(2) << ((clock()-game_start)/1000)%60;
     stringstream ssmin;
     ssmin << setfill('0') << right << setw(2) << ((clock() - game_start) / 1000) / 60;
     string stime;
     stime = ssmin.str() + ":" + sssec.str();
-    DrawString(520, 120, stime.c_str(), GetColor(255, 255, 255));
+    DrawString(503, 120, stime.c_str(), GetColor(255, 255, 255));
 
     stringstream ss;
-    ss << setfill('0') << right << setw(11) << score;
+    ss << setfill('0') << right << setw(8) << score;
     string s = ss.str();
-    DrawString(490, 200, s.c_str(), GetColor(255, 255, 255));
+    DrawString(469, 200, s.c_str(), GetColor(255, 255, 255));
     ScreenFlip();
 }
 
@@ -306,14 +325,32 @@ int CheckCombine(vector<vector<int>> puzzle, int x, int y, int sphere_no, int co
     return count;
 }
 
-void gameover_disp(long long score) {
+void gameover_disp(vector<vector<int>> puzzle, long long score) {
     ClearDrawScreen();
+    DrawGraph(0, 0, mImageHandle6, FALSE);
+    for (int i = 0; i < puzzle.size(); i++) {
+        for (int j = 0; j < puzzle[0].size(); j++) {
+            if (puzzle[i][j] != 0) {
+                switch (puzzle[i][j]) {
+                case 1:
+                    DrawGraph(40 + (j * 40), 40 + (i * 40), mImageHandle2, TRUE);
+                    break;
+                case 2:
+                    DrawGraph(40 + (j * 40), 40 + (i * 40), mImageHandle3, TRUE);
+                    break;
+                case 3:
+                    DrawGraph(40 + (j * 40), 40 + (i * 40), mImageHandle4, TRUE);
+                    break;
+                case 4:
+                    DrawGraph(40 + (j * 40), 40 + (i * 40), mImageHandle5, TRUE);
+                    break;
+                }
+            }
+        }
+    }
     stringstream ss;
-    ss << setfill('0') << right << setw(11) << score;
+    ss << setfill('0') << right << setw(8) << score;
     string s = ss.str();
-    DrawString(0, 0, "GAME OVER", GetColor(255, 255, 255));
-    DrawString(0, 40, "SCORE:", GetColor(255, 255, 255));
-    DrawString(0, 60, s.c_str(), GetColor(255, 255, 255));
-    DrawString(0, 100, "R:RETRY, SPACE : GO BACK TO MENU", GetColor(255, 255, 255));
+    DrawString(469, 200, s.c_str(), GetColor(255, 255, 255));
     ScreenFlip();
 }
