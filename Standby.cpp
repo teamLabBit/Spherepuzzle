@@ -5,7 +5,7 @@
 static int mImageHandle;
 
 void Standby_Initialize() {
-	mImageHandle = LoadGraph("images/Scene_Game.png");
+	mImageHandle = LoadGraph("images/Standby.png");
 }
 
 void Standby_Finalize() {
@@ -20,6 +20,4 @@ void Standby_Update() {
 
 void Standby_Draw() {
 	DrawGraph(0, 0, mImageHandle, FALSE);
-	DrawString(0, 0, "スタンバイ画面です。", GetColor(255, 255, 255));
-	DrawString(0, 20, "SPACEキーを押すとゲーム画面に進みます。", GetColor(255, 255, 255));
 }

@@ -82,3 +82,10 @@ static void SceneMgr_FinalizeModule(eScene scene) {
 		break;
 	}
 }
+
+bool GameEnd_Check() {
+	if (mNextScene == eScene_End) {
+		return true;
+	}
+	return false;
+}
