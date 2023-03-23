@@ -74,7 +74,7 @@ void Game_Update() {
     Game_Draw(puzzle, score, sphere_pos, now_sphere, next_sphere, game_start);
     clock_t prev_stacktime = clock();
 
-    while (true) {
+    while (ProcessMessage() == 0) {
         clock_t start = clock();
         if (GetAsyncKeyState(VK_LEFT) & 0x01) {
             if (sphere_pos >= 1 && sphere_pos <= 9) {
